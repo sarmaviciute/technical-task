@@ -12,13 +12,20 @@ const getAllAbsoluthPaths = (registry) => {
       ? `${registryItem.parent}${registryItem.path}`
       : registryItem.path;
 
-    const absolutePath =
-      parentPath && parentPath.parent
-        ? `${parentPath.parent}${registryItemPath}`
-        : registryItemPath;
+    let absolutePath = registryItemPath;
+    let level = registryItem.level;
+
+    if (parentPath && parentPath.parent) {
+      absolutePath = `${parentPath.parent}${registryItemPath}`;
+      level =
+        parentPath.level > registryItem.level
+          ? parentPath.level
+          : registryItem.level;
+    }
 
     return {
       absolutePath: absolutePath.replace('//', '/'),
+      level,
     };
   });
 };
@@ -31,7 +38,14 @@ const getAllAbsoluthPaths = (registry) => {
  * @returns {Boolean} if the user has acces
  */
 const hasAccess = (user, path, paths) => {
-  return false;
+  const matchedRegistryPath = paths.find(
+    (registryEntry) => registryEntry.absolutePath === path
+  );
+  if (!matchedRegistryPath) {
+    return false;
+  }
+
+  return user.level >= matchedRegistryPath.level;
 };
 
 /**
