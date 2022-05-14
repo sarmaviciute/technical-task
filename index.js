@@ -55,7 +55,7 @@ const hasAccess = (user, path, paths) => {
  * @returns {Array<Object>} filtered array of routes
  */
 const getUserPaths = (user, paths) => {
-  return [];
+  return paths.filter((path) => hasAccess(user, path.absolutePath, paths));
 };
 
 module.exports = {
