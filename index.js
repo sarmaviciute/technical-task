@@ -5,29 +5,42 @@
  */
 const getAllAbsoluthPaths = (registry) => {
   return registry.map((registryItem) => {
-    const parentPath = registry.find(
-      (registryObject) => registryObject.path === registryItem.parent
-    );
-    const registryItemPath = registryItem.parent
-      ? `${registryItem.parent}${registryItem.path}`
-      : registryItem.path;
-
-    let absolutePath = registryItemPath;
-    let level = registryItem.level;
-
-    if (parentPath && parentPath.parent) {
-      absolutePath = `${parentPath.parent}${registryItemPath}`;
-      level =
-        parentPath.level > registryItem.level
-          ? parentPath.level
-          : registryItem.level;
+    let parentPaths = findParentPath(registry, registryItem);
+    if (!parentPaths) {
+      return {
+        absolutePath: registryItem.path,
+        level: registryItem.level,
+      };
     }
+    const highestParentLevel = Math.max(
+      ...parentPaths.map((path) => path.level),
+      0
+    );
+    parentPaths = parentPaths
+      .map((registryObject) => registryObject.path)
+      .join('');
 
     return {
-      absolutePath: absolutePath.replace('//', '/'),
-      level,
+      absolutePath: `${parentPaths}${registryItem.path}`.replace('//', '/'),
+      level:
+        highestParentLevel > registryItem.level
+          ? highestParentLevel
+          : registryItem.level,
     };
   });
+};
+
+const findParentPath = (registry, registryItem) => {
+  if (!registryItem.parent) return [];
+
+  const parentPath = registry.find(
+    (registryEntry) => registryEntry.path === registryItem.parent
+  );
+
+  return [
+    ...findParentPath(registry, parentPath),
+    { path: parentPath.path, level: parentPath.level },
+  ];
 };
 
 /**
