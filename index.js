@@ -4,8 +4,24 @@
  * @returns {Array<Object>} modified registry
  */
 const getAllAbsoluthPaths = (registry) => {
-  return registry
-}
+  return registry.map((registryItem) => {
+    const parentPath = registry.find(
+      (registryObject) => registryObject.path === registryItem.parent
+    );
+    const registryItemPath = registryItem.parent
+      ? `${registryItem.parent}${registryItem.path}`
+      : registryItem.path;
+
+    const absolutePath =
+      parentPath && parentPath.parent
+        ? `${parentPath.parent}${registryItemPath}`
+        : registryItemPath;
+
+    return {
+      absolutePath: absolutePath.replace('//', '/'),
+    };
+  });
+};
 
 /**
  * Check accessibilty for a user
@@ -15,8 +31,8 @@ const getAllAbsoluthPaths = (registry) => {
  * @returns {Boolean} if the user has acces
  */
 const hasAccess = (user, path, paths) => {
-  return false
-}
+  return false;
+};
 
 /**
  * Get all paths a user has access too
@@ -25,11 +41,11 @@ const hasAccess = (user, path, paths) => {
  * @returns {Array<Object>} filtered array of routes
  */
 const getUserPaths = (user, paths) => {
-  return []
-}
+  return [];
+};
 
 module.exports = {
   getAllAbsoluthPaths,
   hasAccess,
-  getUserPaths
-}
+  getUserPaths,
+};
